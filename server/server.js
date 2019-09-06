@@ -1,5 +1,7 @@
 
 const express = require('express')
+const mongoose = require('mongoose')
+require('./config/config')
 const app = express();
 
 const bodyParser = require('body-parser')
@@ -7,26 +9,13 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended:false}))
 app.use(bodyParser.json())
 
-app.get('/', function(req, res){
-    res.json('Hello');
-})
+app.use(require('./routes/usuario'))
 
-app.post('/usuario', function(req, res){
-    let body = req.body
-    console.log(body);
-    res.json({body});
+mongoose.connect('mongodb://localhost:27017/cafe', (err, res) =>{
+    if(err) throw err;
+    console.log('bd onlinels')
 })
-
-//url con prametros
-app.get('/usuario/:id', function(req, res){
-    let id = req.params.id
-    console.log(id);
-    //retornar codigos 
-    //res.status(400);
-    res.json({id});
-})
-
 
 app.listen(process.env.puerto, () => {
-    console.log('listening ---');
+    console.log('listening ---' + process.env.puerto);
 });
