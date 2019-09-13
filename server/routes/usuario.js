@@ -1,5 +1,6 @@
 
 const express = require('express')
+const bcryp = require('bcrypt')
 const Usuario = require('../models/usuario');
 
 const app = express()
@@ -15,7 +16,7 @@ app.post('/usuario', function(req, res){
         nombre:body.nombre,
         edad:body.edad,
         img:body.img,        
-        password: body.password,
+        password: bcryp.hashSync(body.password, 10),
         role:body.role,
         email:body.email
     })
@@ -48,9 +49,21 @@ app.get('/usuario/:id', function(req, res){
 
 app.put('/usuario/:id', function(req, res){
     let id = req.params.id
-    res.json({
-        id
+    let body = req.body
+    Usuario.findByIdAndUpdate(id, body, {new:true}, (err, usuarioDB) => {
+        if(err){
+            return res.status(400).json({
+                ok:true,
+                error: err
+            })
+        }
+
+        res.json({
+            ok:true,
+            usuario:usuarioDB
+        })
     });
+   
 })
 
 app.delete('/usuario', function(req, res){
