@@ -1,6 +1,7 @@
 
 const express = require('express')
 const bcryp = require('bcrypt')
+const _ = require('underscore')
 const Usuario = require('../models/usuario');
 
 const app = express()
@@ -39,18 +40,32 @@ app.post('/usuario', function(req, res){
 })
 
 //url con prametros
-app.get('/usuario/:id', function(req, res){
-    let id = req.params.id
-    console.log(id);
-    //retornar codigos 
-    //res.status(400);
-    res.json({id});
+app.get('/usuario', function(req, res){
+    
+    let page = req.query.page || 0;
+    page = Number(page)
+
+
+    Usuario.find({}).skip(page).limit(5).exec((err,usuarios) => {
+        if(err){
+            return res.status(400).json({
+                ok:false,
+                err:err
+            })
+        }else{
+            res.json({
+                ok:true,
+                usuarios:usuarios
+            })
+        }
+    }) 
+
 })
 
 app.put('/usuario/:id', function(req, res){
     let id = req.params.id
-    let body = req.body
-    Usuario.findByIdAndUpdate(id, body, {new:true}, (err, usuarioDB) => {
+    let body = _.pick( req.body, ['nombre', 'email', 'img', 'role', 'estado'])
+    Usuario.findByIdAndUpdate(id, body, {new:true, runValidators:true}, (err, usuarioDB) => {
         if(err){
             return res.status(400).json({
                 ok:true,
