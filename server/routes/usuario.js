@@ -3,6 +3,7 @@ const express = require('express')
 const bcryp = require('bcrypt')
 const _ = require('underscore')
 const Usuario = require('../models/usuario');
+const { verificaToken } = require('../middlewares/autenticacion')
 
 const app = express()
 
@@ -17,7 +18,7 @@ app.post('/usuario', function(req, res){
         nombre:body.nombre,
         edad:body.edad,
         img:body.img,        
-        password: bcryp.hashSync(body.password, 10),
+        password: bcryp.hashSync(body.password, 10, function(err, salt){}),
         role:body.role,
         email:body.email
     })
@@ -40,7 +41,7 @@ app.post('/usuario', function(req, res){
 })
 
 //url con prametros
-app.get('/usuario', function(req, res){
+app.get('/usuario', verificaToken, (req, res) => {
     
     let page = req.query.page || 0;
     page = Number(page)
